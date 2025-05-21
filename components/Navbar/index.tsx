@@ -6,12 +6,12 @@ import { NETWORK } from "@/const/contracts";
 
 export function Navbar() {
   return (
-    <div className="fixed top-0 z-10 flex items-center justify-center w-full bg-transparent text-white/60 backdrop-blur-md">
+    <div className="fixed top-0 z-10 flex items-center justify-center w-full bg-gradient-to-b from-yellow-300 to-orange-400 text-black backdrop-blur-md">
       <nav className="flex items-center justify-between w-full px-8 py-5 mx-auto max-w-7xl">
         <div className="flex items-center gap-3">
           <Link href="/" className="mr-4">
             <Image
-              src="/logo.png"
+              src="/ig-brap-logo.png"
               width={48}
               height={48}
               alt="NFT marketplace sample logo"
@@ -21,27 +21,38 @@ export function Navbar() {
           <div className="flex items-center gap-6 font-medium">
             <Link
               href="/buy"
-              className="transition hover:text-white/100"
+              className="transition-colors hover:text-orange-500 text-black"
             >
-							Buy
+              Buy
             </Link>
             <Link
               href="/sell"
-              className="transition hover:text-white/100"
+              className="transition-colors hover:text-orange-500 text-black"
             >
-							Sell
+              Sell
+            </Link>
+            <Link
+              href="/stake"
+              className="transition-colors hover:text-orange-500 text-black"
+            >
+              Stake
+            </Link>
+            {/* Buy BRAP Token link has been removed */}
+            <Link
+              href="/brap-roadmap"
+              className="transition-colors hover:text-orange-500 text-black"
+            >
+              The Brap Road Map
             </Link>
           </div>
         </div>
 
         <div className="flex items-center justify-center gap-4">
-          <div className="">
-            <ConnectButton
-              theme="dark"
-              client={client}
-              chain={NETWORK}
-            />
-          </div>
+          <ConnectButton
+            theme="dark"
+            client={client}
+            chain={NETWORK}
+          />
         </div>
       </nav>
     </div>

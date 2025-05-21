@@ -2,7 +2,10 @@
 import React, { useEffect, useState } from "react";
 import { NFT } from "thirdweb";
 import { NFT_COLLECTION } from "../../const/contracts";
-import { DirectListing, EnglishAuction } from "thirdweb/extensions/marketplace";
+import {
+  DirectListing,
+  EnglishAuction,
+} from "thirdweb/extensions/marketplace";
 import { MediaRenderer } from "thirdweb/react";
 import { getNFT } from "thirdweb/extensions/erc721";
 import client from "@/lib/client";
@@ -10,11 +13,11 @@ import Skeleton from "@/components/Skeleton";
 import { useRouter } from "next/navigation";
 
 type Props = {
-	tokenId: bigint;
-	nft?: NFT;
-	directListing?: DirectListing;
-	auctionListing?: EnglishAuction;
-	overrideOnclickBehavior?: (nft: NFT) => void;
+  tokenId: bigint;
+  nft?: NFT;
+  directListing?: DirectListing;
+  auctionListing?: EnglishAuction;
+  overrideOnclickBehavior?: (nft: NFT) => void;
 };
 
 export default function NFTComponent({
@@ -28,6 +31,11 @@ export default function NFTComponent({
   const [nft, setNFT] = useState(props.nft);
 
   useEffect(() => {
+    // Debug: log the NFT_COLLECTION address before fetching NFT
+    console.log(
+      "NFT_COLLECTION address:",
+      NFT_COLLECTION.address,
+    );
     if (nft?.id !== tokenId) {
       getNFT({
         contract: NFT_COLLECTION,
@@ -50,11 +58,9 @@ export default function NFTComponent({
         overrideOnclickBehavior
           ? () => overrideOnclickBehavior(nft!)
           : () =>
-            router.push(
-              `/token/${
-                NFT_COLLECTION.address
-              }/${tokenId.toString()}`
-            )
+              router.push(
+                `/token/${NFT_COLLECTION.address}/${tokenId.toString()}`,
+              )
       }
     >
       <div className="relative w-full h-64 bg-white/[.04]">
@@ -72,14 +78,14 @@ export default function NFTComponent({
             {nft.metadata.name}
           </p>
           <p className="text-sm font-semibold text-white/60">
-						#{nft.id.toString()}
+            #{nft.id.toString()}
           </p>
         </div>
 
         {(directListing || auctionListing) && (
           <div className="flex flex-col items-end justify-center">
             <p className="max-w-full mb-1 overflow-hidden font-medium text-ellipsis whitespace-nowrap text-white/60">
-							Price
+              Price
             </p>
             <p className="max-w-full overflow-hidden text-white text-ellipsis whitespace-nowrap">
               {directListing

@@ -4,17 +4,17 @@ import { Navbar } from "@/components/Navbar";
 import Image from "next/image";
 import "@/globals.css";
 import { Metadata } from "next";
+import React from "react";
 
 export const metadata: Metadata = {
-  title: "thirdweb Marketplace Template",
-  description:
-		"Create an NFT marketplace on top of your NFT collection on any EVM-compatible blockchain.",
+  title: "BRAP HQ",
+  description: "The BRAP NFT marketplace.",
 };
 
 export default function RootLayout({
   children,
 }: {
-	children: React.ReactNode;
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en">
@@ -33,11 +33,9 @@ export default function RootLayout({
         <Toaster />
         <ThirdwebProvider>
           <Navbar />
-          <div className="w-screen min-h-screen">
-            <div className="px-8 mx-auto mt-32 max-w-7xl">
-              {children}
-            </div>
-          </div>
+          <main className="w-screen min-h-screen">
+            <div className="px-8 mx-auto mt-32 max-w-7xl">{children}</div>
+          </main>
         </ThirdwebProvider>
       </body>
     </html>
