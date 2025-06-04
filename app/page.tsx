@@ -50,7 +50,7 @@ const Home: NextPage = () => {
           replenished. Dive into the marketplace to collect
           your Bumba Bee or a fire Track. Stake to grow your
           nectar. You can buy or swap BRAP on Trader Joe.
-          Whether you're here to collect, earn, or vibe —
+          Whether you are here to collect, earn, or vibe —
           BRAP HQ is your buzzing headquarters. 🐝💨
         </p>
 
