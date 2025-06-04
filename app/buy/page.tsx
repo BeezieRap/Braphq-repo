@@ -46,7 +46,7 @@ export default function BuyPage() {
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-8 max-w-md text-center shadow-lg">
             <h2 className="text-2xl font-bold mb-4">
-              You're now a Bumba Beez Collector!
+              You are now a Bumba Beez Collector!
             </h2>
             <p className="mb-2">Welcome to the swarm 🐝</p>
             <p className="mb-2">

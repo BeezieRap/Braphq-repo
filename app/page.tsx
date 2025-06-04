@@ -37,7 +37,7 @@ const Home: NextPage = () => {
           </strong>{" "}
           NFT collections. Stake NFTs to earn monthly
           $BRAPTKN rewards through our unique nectar
-          tiersystem. From the bold{" "}
+          tiering system. From the bold{" "}
           <em className="text-orange-700">
             Bad Azz Bumba Beez
           </em>{" "}
@@ -45,8 +45,8 @@ const Home: NextPage = () => {
           <em className="text-orange-600">
             Betaverse Beez
           </em>
-          , each collection earns a different amouth of
-          monthly $BRAPTKN'S to keep our community
+          , each collection earns a different amount of
+          monthly $BRAPTKN to keep our community
           replenished. Dive into the marketplace to collect
           your Bumba Bee or a fire Track. Stake to grow your
           nectar. You can buy or swap BRAP on Trader Joe.
