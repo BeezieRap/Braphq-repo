@@ -54,25 +54,38 @@ const Home: NextPage = () => {
           BRAP HQ is your buzzing headquarters. 🐝💨
         </p>
 
-        <div className="flex justify-center text-lg font-medium items-center mt-10 gap-4">
+        <div className="flex flex-wrap justify-center text-lg font-medium items-center mt-10 gap-4">
           <Link
-            className="w-56 p-3 rounded-lg transition-all hover:shadow-lg bg-gradient-to-r from-yellow-400 to-orange-500 text-black border border-yellow-500"
-            href="https://portal.thirdweb.com/"
+            className="w-56 p-3 rounded-lg transition-all hover:shadow-lg bg-gradient-to-r from-yellow-400 to-orange-500 text-black border border-yellow-500 text-center"
+            href="https://x.com/BrumBeezieRap"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <span>Get Started</span>
+            Follow BRAP on X
           </Link>
           <Link
-            href="https://github.com/thirdweb-example/marketplace-v3"
-            legacyBehavior
-            passHref
+            className="w-56 p-3 rounded-lg transition-all hover:shadow-lg bg-gradient-to-r from-yellow-400 to-orange-500 text-black border border-yellow-500 text-center"
+            href="https://arena.social/?ref=BrumBeezieRap"
+            target="_blank"
+            rel="noopener noreferrer"
           >
-            <a
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-56 p-3 rounded-lg bg-yellow-100 text-yellow-700 transition-all hover:bg-yellow-200 border border-yellow-300 w-full h-full block"
-            >
-              GitHub
-            </a>
+            Swarm on Arena
+          </Link>
+          <Link
+            className="w-56 p-3 rounded-lg transition-all hover:shadow-lg bg-gradient-to-r from-yellow-400 to-orange-500 text-black border border-yellow-500 text-center"
+            href="https://thirdweb.com/avalanche/0x5b3Ff4d494E9Ee69eE0f52Ab9656cFfe99D4839E"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            BUY $BRAPTKN
+          </Link>
+          <Link
+            className="w-56 p-3 rounded-lg transition-all hover:shadow-lg bg-gradient-to-r from-yellow-400 to-orange-500 text-black border border-yellow-500 text-center"
+            href="https://discord.gg/TYbfbt2R"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Swarm Discord
           </Link>
         </div>
       </div>

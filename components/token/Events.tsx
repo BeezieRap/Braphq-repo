@@ -1,12 +1,19 @@
 "use client";
 import { useContractEvents } from "thirdweb/react";
 import { transferEvent } from "thirdweb/extensions/erc721";
-import { ETHERSCAN_URL, NFT_COLLECTION } from "@/const/contracts";
+import { NFT_COLLECTION } from "@/const/contracts";
 import Link from "next/link";
+import { avalanche } from "thirdweb/chains";
+import client from "@/lib/client";
+import { getContract } from "thirdweb";
 
 export default function Events({ tokenId }: { tokenId: bigint }) {
   const { data: transferEvents } = useContractEvents({
-    contract: NFT_COLLECTION,
+    contract: getContract({
+            address: NFT_COLLECTION,
+            chain: avalanche,
+            client: client,
+        }),
     events: [transferEvent({ tokenId })],
   });
 
@@ -26,7 +33,7 @@ export default function Events({ tokenId }: { tokenId: bigint }) {
             <p className="text-white/60">From</p>
             <p className="font-semibold text-white">
               {event.args.from.slice(0, 4)}
-							...
+                            ...
               {event.args.from.slice(-2)}
             </p>
           </div>
@@ -35,7 +42,7 @@ export default function Events({ tokenId }: { tokenId: bigint }) {
             <p className="text-white/60">To</p>
             <p className="font-semibold text-white">
               {event.args.to.slice(0, 4)}
-							...
+                            ...
               {event.args.to.slice(-2)}
             </p>
           </div>
@@ -43,10 +50,10 @@ export default function Events({ tokenId }: { tokenId: bigint }) {
           <div className="flex flex-col gap-1">
             <Link
               className="w-6 h-6 p-2"
-              href={`${ETHERSCAN_URL}/tx/${event.transactionHash}`}
+              href={`https://snowtrace.io/tx/${event.transactionHash}`}
               target="_blank"
             >
-							↗
+                            ↗
             </Link>
           </div>
         </div>

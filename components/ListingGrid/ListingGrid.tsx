@@ -14,41 +14,59 @@ const chain = defineChain(43114); // Avalanche C-Chain
 
 export default function ListingGrid({ marketplace, collections, emptyText }: Props) {
   const [allListings, setAllListings] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
+    if (!marketplace) return;
+
     let cancelled = false;
+
     async function fetchListings() {
-      setLoading(true);
-      let accum: any[] = [];
       try {
+        setLoading(true);
+
         const contract = getContract({
           client,
           chain,
           address: marketplace,
         });
+
         const all = await getAllListings({
           contract,
-          start: 0n,
+          start: 0,
           count: 100n,
         });
-        const normalizedCollections = collections.map(addr => addr.toLowerCase().replace(/\s/g, ""));
-        const filtered = all.filter((listing: any) =>
-          normalizedCollections.includes(
-            (listing.assetContractAddress || listing.asset?.contractAddress || "").toLowerCase()
-          )
-        );
-        accum = filtered;
+       
+        let filteredListings = all;
+
+        if (collections?.length) {
+          const normalizedCollections = collections.map(addr => addr.toLowerCase());
+        
+          filteredListings = all.filter((listing: any) => {
+            console.log(listing);
+            const address = listing.assetContractAddress?.toLowerCase();
+            console.log(address, normalizedCollections.includes(address));
+            return normalizedCollections.includes(address);
+          });
+        }
+        console.log(filteredListings);
+        
+
+        if (!cancelled) {
+          setAllListings(filteredListings);
+        }
       } catch (err) {
         console.error("Error fetching listings:", err);
-      }
-      if (!cancelled) {
-        setAllListings(accum);
-        setLoading(false);
+        if (!cancelled) setAllListings([]);
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
+
     fetchListings();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [marketplace, collections]);
 
   if (loading) return <div>Loading...</div>;

@@ -1,29 +1,41 @@
 "use client";
 import React, { useEffect, useState } from "react";
-import { NFT } from "thirdweb";
+import { defineChain, getContract, NFT } from "thirdweb";
 import { NFT_COLLECTION } from "../../const/contracts";
 import {
   DirectListing,
   EnglishAuction,
 } from "thirdweb/extensions/marketplace";
-import { MediaRenderer } from "thirdweb/react";
+import {
+  MediaRenderer,
+  BuyDirectListingButton,
+} from "thirdweb/react";
 import { getNFT } from "thirdweb/extensions/erc721";
 import client from "@/lib/client";
 import Skeleton from "@/components/Skeleton";
 import { useRouter } from "next/navigation";
 
+// Set your marketplace contract address here
+const MARKETPLACE_CONTRACT =
+  "0x586d90eceDAf6627832f1B6081CAfc4Ea27fAf6A"; // <-- IMPORTANT: Replace this if needed
+
 type Props = {
   tokenId: bigint;
   nft?: NFT;
+  listingType: string;
+  listing: any;
   directListing?: DirectListing;
   auctionListing?: EnglishAuction;
   overrideOnclickBehavior?: (nft: NFT) => void;
 };
+const chain = defineChain(43114); // Avalanche C-Chain
 
 export default function NFTComponent({
   tokenId,
   directListing,
   auctionListing,
+  listing,
+  listingType,
   overrideOnclickBehavior,
   ...props
 }: Props) {
@@ -31,14 +43,19 @@ export default function NFTComponent({
   const [nft, setNFT] = useState(props.nft);
 
   useEffect(() => {
-    // Debug: log the NFT_COLLECTION address before fetching NFT
     console.log(
       "NFT_COLLECTION address:",
-      NFT_COLLECTION.address,
+      NFT_COLLECTION,
+      nft,
+      listing,
     );
     if (nft?.id !== tokenId) {
       getNFT({
-        contract: NFT_COLLECTION,
+        contract: getContract({
+          client,
+          chain,
+          address: NFT_COLLECTION,
+        }),
         tokenId: tokenId,
         includeOwner: true,
       }).then((nft) => {
@@ -53,47 +70,76 @@ export default function NFTComponent({
 
   return (
     <div
-      className="cursor-pointer transition-all hover:scale-105 hover:shadow-lg flex flex-col w-full h-[350px] bg-white/[.04] justify-stretch border overflow-hidden border-white/10 rounded-lg"
+      className="cursor-pointer transition-all hover:scale-105 hover:shadow-lg flex flex-col w-full bg-white/[.04] justify-stretch border overflow-hidden border-white/10 rounded-lg"
       onClick={
         overrideOnclickBehavior
           ? () => overrideOnclickBehavior(nft!)
           : () =>
               router.push(
-                `/token/${NFT_COLLECTION.address}/${tokenId.toString()}`,
+                `/token/${NFT_COLLECTION}/${tokenId.toString()}`,
               )
       }
     >
-      <div className="relative w-full h-64 bg-white/[.04]">
-        {nft.metadata.image && (
-          <MediaRenderer
-            src={nft.metadata.image}
-            client={client}
-            className="object-cover object-center"
-          />
-        )}
-      </div>
-      <div className="flex items-center justify-between flex-1 w-full px-3">
-        <div className="flex flex-col justify-center py-3">
-          <p className="max-w-full overflow-hidden text-lg text-white text-ellipsis whitespace-nowrap">
-            {nft.metadata.name}
-          </p>
-          <p className="text-sm font-semibold text-white/60">
-            #{nft.id.toString()}
-          </p>
+      <div className="flex w-full bg-white/[.04]">
+        {/* Left side: NFT image */}
+        <div className="relative w-1/2 aspect-square flex-shrink-0">
+          {nft.metadata.image && (
+            <MediaRenderer
+              src={nft.metadata.image}
+              client={client}
+              className="object-cover object-center w-full h-full"
+            />
+          )}
         </div>
-
-        {(directListing || auctionListing) && (
-          <div className="flex flex-col items-end justify-center">
-            <p className="max-w-full mb-1 overflow-hidden font-medium text-ellipsis whitespace-nowrap text-white/60">
-              Price
+        {/* Right side: info, description, price as buy button */}
+        <div className="flex flex-col justify-between w-1/2 p-4 min-h-[220px]">
+          <div>
+            <p className="overflow-hidden text-lg text-black whitespace-nowrap">
+              {nft.metadata.name}
             </p>
-            <p className="max-w-full overflow-hidden text-white text-ellipsis whitespace-nowrap">
-              {directListing
-                ? `${directListing?.currencyValuePerToken.displayValue}${directListing?.currencyValuePerToken.symbol}`
-                : `${auctionListing?.minimumBidCurrencyValue.displayValue}${auctionListing?.minimumBidCurrencyValue.symbol}`}
+            <p className="text-sm font-semibold text-black">
+              #{nft.id.toString()}
             </p>
+            {nft.metadata?.description && (
+              <p className="text-sm font-semibold text-black mt-2">
+                {nft.metadata.description}
+              </p>
+            )}
           </div>
-        )}
+          {listingType === "direct-listing" && listing && (
+            <div className="w-full flex justify-end mt-4">
+              <BuyDirectListingButton
+                contractAddress={MARKETPLACE_CONTRACT}
+                chain={chain}
+                client={client}
+                listingId={listing.id}
+                style={{
+                  padding: "0.75em 1.5em",
+                  fontWeight: "bold",
+                  fontSize: "1.1em",
+                  color: "#fff",
+                  background:
+                    "linear-gradient(90deg,#FFD600,#FF9600)", // yellow/orange gradient
+                  border: "none",
+                  borderRadius: "0.5em",
+                  marginTop: "1em",
+                  marginRight: "0.5em",
+                  cursor: "pointer",
+                }}
+              >
+                {
+                  listing?.currencyValuePerToken
+                    .displayValue
+                }
+                {listing?.currencyValuePerToken
+                  .tokenAddress ===
+                "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
+                  ? "AVAX"
+                  : listing?.currencyValuePerToken.symbol}
+              </BuyDirectListingButton>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -101,7 +147,7 @@ export default function NFTComponent({
 
 export function LoadingNFTComponent() {
   return (
-    <div className="w-full h-[350px] rounded-lg">
+    <div className="w-full rounded-lg">
       <Skeleton width="100%" height="100%" />
     </div>
   );

@@ -1,7 +1,5 @@
-"use client";
-
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
+import { getContract } from "thirdweb";
+import { avalanche } from "thirdweb/chains";
 import React from "react";
 import { MediaRenderer } from "thirdweb/react";
 import {
@@ -24,16 +22,28 @@ export default async function TokenPage({
 	params: { contractAddress: string; tokenId: string };
 }) {
 	const listingsPromise = getAllValidListings({
-		contract: MARKETPLACE,
-	});
-	const auctionsPromise = getAllValidAuctions({
-		contract: MARKETPLACE,
-	});
-	const nftPromise = getNFT({
-		contract: NFT_COLLECTION,
-		tokenId: BigInt(params.tokenId),
-		includeOwner: true,
-	});
+        contract: getContract({
+            address: MARKETPLACE,
+            chain: avalanche                                                                                        ,
+            client: client,
+        }),
+    });
+    const auctionsPromise = getAllValidAuctions({
+        contract: getContract({
+            address: MARKETPLACE,
+            chain: avalanche                                                                                        ,
+            client: client,
+        }),
+    });
+    const nftPromise = getNFT({
+        contract: getContract({
+            address: NFT_COLLECTION,
+            chain: avalanche                                                                                        ,
+            client: client,
+        }),
+        tokenId: BigInt(params.tokenId),
+        includeOwner: true,
+    });
 
 	const [listings, auctions, nft] = await Promise.all([
 		listingsPromise,

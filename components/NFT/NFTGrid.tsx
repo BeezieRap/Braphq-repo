@@ -10,6 +10,7 @@ type NFTDataItem = {
   asset?: any; // Raw NFT metadata (from marketplace listing), which we'll pass as 'nft'
   directListing?: DirectListing;
   auctionListing?: EnglishAuction;
+  type?: string;
 };
 
 type Props = {
@@ -46,6 +47,7 @@ function hasRequiredMetadata(
   asset?: any,
   directListing?: DirectListing,
   auctionListing?: EnglishAuction,
+  type?: string
 ): boolean {
   if (!asset) return false;
   const hasImage =
@@ -57,10 +59,11 @@ function hasRequiredMetadata(
   const hasDescription =
     typeof asset.metadata?.description === "string" &&
     asset.metadata.description.length > 0;
+  const hasValidType = type === 'direct-listing' || type === 'english-auction';
   const price = getPrice(directListing, auctionListing);
   const hasPrice =
     price !== null && price !== "" && price !== undefined;
-  return hasImage && hasName && hasDescription && hasPrice;
+  return hasImage && hasName && hasDescription && (hasPrice || hasValidType);
 }
 
 export default function NFTGrid({
@@ -68,12 +71,15 @@ export default function NFTGrid({
   overrideOnclickBehavior,
   emptyText = "No NFTs found for this collection.",
 }: Props) {
+  console.log("nftData", nftData);
+
   const filteredData = nftData.filter(
-    ({ asset, directListing, auctionListing }) =>
+    (listing) =>
       hasRequiredMetadata(
-        asset,
-        directListing,
-        auctionListing,
+        listing.asset,
+        listing.directListing,
+        listing.auctionListing,
+        listing.type
       ),
   );
 
@@ -95,10 +101,10 @@ export default function NFTGrid({
                 nftObj.asset.metadata?.tokenId?.toString() ||
                 nftObj.tokenId.toString()
               }
+              listingType={nftObj.type || ''}
+              listing={nftObj}
               nft={nftObj.asset} // <-- CORRECT: pass as 'nft'
               tokenId={nftObj.tokenId}
-              directListing={nftObj.directListing}
-              auctionListing={nftObj.auctionListing}
               overrideOnclickBehavior={
                 overrideOnclickBehavior
               }

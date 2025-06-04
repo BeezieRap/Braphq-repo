@@ -2,7 +2,7 @@ import { ConnectButton } from "thirdweb/react";
 import Image from "next/image";
 import Link from "next/link";
 import client from "@/lib/client";
-import { NETWORK } from "@/const/contracts";
+import { avalanche } from "thirdweb/chains";
 
 export function Navbar() {
   return (
@@ -51,7 +51,7 @@ export function Navbar() {
           <ConnectButton
             theme="dark"
             client={client}
-            chain={NETWORK}
+            chain={avalanche}
           />
         </div>
       </nav>
