@@ -243,100 +243,108 @@ export default function StakingPage() {
   }, [account]);
 
   // Fetch user's staked NFTs across all staking vaults
-  useEffect(() => {
-    if (!account?.address) {
-      setStakedNFTs([]);
-      return;
-    }
-    let cancelled = false;
-    async function fetchAllStakedNFTs() {
-      const provider = new JsonRpcProvider(
-        "https://api.avax.network/ext/bc/C/rpc",
-      );
-      let stakedAll: NFTType[] = [];
-      for (const coll of NFT_COLLECTIONS) {
-        try {
-          const stakingContract = new ethers.Contract(
-            coll.stakingContractAddress,
-            stakingAbi,
-            provider,
-          );
-          const nftContract = new ethers.Contract(
-            coll.address,
-            erc721Abi,
-            provider,
-          );
-          const result = await stakingContract.getStakeInfo(
-            account.address,
-          );
-          const tokenIds = Array.isArray(result[0])
-            ? result[0]
-            : result.tokenIds;
-          for (const id of tokenIds) {
-            let tokenId = id.toString();
-            let image, name;
-            try {
-              let tokenUri =
-                await nftContract.tokenURI(tokenId);
-              if (tokenUri.startsWith("ipfs://"))
-                tokenUri = tokenUri.replace(
-                  "ipfs://",
-                  "https://ipfs.io/ipfs/",
-                );
-              const meta = await fetchMetadata(tokenUri);
-              image =
-                meta.image &&
-                meta.image.startsWith("ipfs://")
-                  ? meta.image.replace(
-                      "ipfs://",
-                      "https://ipfs.io/ipfs/",
-                    )
-                  : meta.image;
-              name = meta.name;
-            } catch {}
-            stakedAll.push({
-              tokenId,
-              image,
-              name,
-              collection: coll.name,
-              collectionAddress: coll.address,
-              stakingContractAddress:
-                coll.stakingContractAddress,
-            });
+useEffect(() => {
+  if (!account?.address) {
+    setStakedNFTs([]);
+    return;
+  }
+
+  const userAddress = account.address; // ✅ capture a defined address here
+
+  let cancelled = false;
+  async function fetchAllStakedNFTs() {
+    const provider = new JsonRpcProvider(
+      "https://api.avax.network/ext/bc/C/rpc",
+    );
+    let stakedAll: NFTType[] = [];
+    for (const coll of NFT_COLLECTIONS) {
+      try {
+        const stakingContract = new ethers.Contract(
+          coll.stakingContractAddress,
+          stakingAbi,
+          provider,
+        );
+        const nftContract = new ethers.Contract(
+          coll.address,
+          erc721Abi,
+          provider,
+        );
+        const result = await stakingContract.getStakeInfo(userAddress);
+        const tokenIds = Array.isArray(result[0])
+          ? result[0]
+          : result.tokenIds ?? [];
+        for (const id of tokenIds) {
+          const tokenId = id.toString();
+          let image: string | undefined;
+          let name: string | undefined;
+          try {
+            let tokenUri = await nftContract.tokenURI(tokenId);
+            if (tokenUri.startsWith("ipfs://")) {
+              tokenUri = tokenUri.replace(
+                "ipfs://",
+                "https://ipfs.io/ipfs/",
+              );
+            }
+            const meta = await fetchMetadata(tokenUri);
+            image = meta.image?.startsWith("ipfs://")
+              ? meta.image.replace("ipfs://", "https://ipfs.io/ipfs/")
+              : meta.image;
+            name = meta.name;
+          } catch (err) {
+            console.error(`Metadata fetch error for token ${tokenId}`, err);
           }
-        } catch {}
+          stakedAll.push({
+            tokenId,
+            image,
+            name,
+            collection: coll.name,
+            collectionAddress: coll.address,
+            stakingContractAddress: coll.stakingContractAddress,
+          });
+        }
+      } catch (err) {
+        console.error("Error fetching staked NFTs from contract", err);
       }
-      if (!cancelled) setStakedNFTs(stakedAll);
     }
-    fetchAllStakedNFTs();
-    return () => {
-      cancelled = true;
-    };
-  }, [account]);
+    if (!cancelled) setStakedNFTs(stakedAll);
+  }
+  fetchAllStakedNFTs();
+  return () => {
+    cancelled = true;
+  };
+}, [account]);
 
   // Fetch total reward per staking contract for the user
-  useEffect(() => {
-    if (!account?.address) {
-      setVaultRewards({});
-      return;
-    }
-    let cancelled = false;
-    async function fetchAllVaultRewards() {
-      const rewardsObj: { [key: string]: string } = {};
-      for (const coll of NFT_COLLECTIONS) {
+useEffect(() => {
+  if (!account?.address) {
+    setVaultRewards({});
+    return;
+  }
+
+  const userAddress = account.address; // ✅ Fix for TS error
+
+  let cancelled = false;
+  async function fetchAllVaultRewards() {
+    const rewardsObj: { [key: string]: string } = {};
+    for (const coll of NFT_COLLECTIONS) {
+      try {
         rewardsObj[coll.stakingContractAddress] =
           await fetchTotalRewardsForStaker(
-            account.address,
+            userAddress,
             coll.stakingContractAddress,
           );
+      } catch {
+        rewardsObj[coll.stakingContractAddress] = "0";
       }
-      if (!cancelled) setVaultRewards(rewardsObj);
     }
-    fetchAllVaultRewards();
-    return () => {
-      cancelled = true;
-    };
-  }, [account, stakedNFTs]);
+    if (!cancelled) setVaultRewards(rewardsObj);
+  }
+
+  fetchAllVaultRewards();
+  return () => {
+    cancelled = true;
+  };
+}, [account, stakedNFTs]);
 
   // Fetch decimals for each reward token per vault
   useEffect(() => {
