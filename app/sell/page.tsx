@@ -233,7 +233,7 @@ export default function SellPage() {
         assetContractAddress: nft.collectionAddress,
         tokenId: BigInt(nft.tokenId),
         pricePerToken: price, // in BRAP tokens
-        currencyAddress: BRAP_TOKEN_ADDRESS, // BRAP token address
+        currencyContractAddress: BRAP_TOKEN_ADDRESS, // BRAP token address
       });
       await sendTransaction({ transaction, account });
       setListingStatus((prev) => ({
