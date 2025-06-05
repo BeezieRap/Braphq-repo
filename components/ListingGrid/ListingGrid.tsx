@@ -4,15 +4,23 @@ import client from "@/lib/client";
 import { getAllListings } from "thirdweb/extensions/marketplace";
 import { getContract, defineChain } from "thirdweb";
 
-type Props = {
+interface Props {
   marketplace: string;
   collections: string[];
-  emptyText?: string;
-};
+  brapTokenAddress: string; // ✅ added
+  emptyText: string; // ✅ changed from optional to required (matches usage)
+  onPurchaseSuccess: (contractAddress: string, tokenId: string) => void; // ✅ added
+}
 
 const chain = defineChain(43114); // Avalanche C-Chain
 
-export default function ListingGrid({ marketplace, collections, emptyText }: Props) {
+export default function ListingGrid({
+  marketplace,
+  collections,
+  brapTokenAddress, // ✅ included here
+  emptyText,
+  onPurchaseSuccess, // ✅ included here
+}: Props) {
   const [allListings, setAllListings] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -36,12 +44,14 @@ export default function ListingGrid({ marketplace, collections, emptyText }: Pro
           start: 0,
           count: 100n,
         });
-       
+
         let filteredListings = all;
 
         if (collections?.length) {
-          const normalizedCollections = collections.map(addr => addr.toLowerCase());
-        
+          const normalizedCollections = collections.map((addr) =>
+            addr.toLowerCase()
+          );
+
           filteredListings = all.filter((listing: any) => {
             console.log(listing);
             const address = listing.assetContractAddress?.toLowerCase();
@@ -50,7 +60,6 @@ export default function ListingGrid({ marketplace, collections, emptyText }: Pro
           });
         }
         console.log(filteredListings);
-        
 
         if (!cancelled) {
           setAllListings(filteredListings);
@@ -71,5 +80,6 @@ export default function ListingGrid({ marketplace, collections, emptyText }: Pro
 
   if (loading) return <div>Loading...</div>;
   if (!allListings.length) return <div>{emptyText || "No NFTs found"}</div>;
+
   return <NFTGrid nftData={allListings} />;
 }

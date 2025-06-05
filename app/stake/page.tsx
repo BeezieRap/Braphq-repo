@@ -801,7 +801,7 @@ export default function StakingPage() {
           )}
           {userNFTs.length === 0 && (
             <p style={{ color: "#111" }}>
-              You don&apos;t hold any BUMBA BEEZ FAM go to the
+              You don&apos;t  hold any BUMBA BEEZ FAM go to the
               buy page and try again.
             </p>
           )}

@@ -62,7 +62,7 @@ export default function NFTComponent({
         setNFT(nft);
       });
     }
-  }, [tokenId, nft?.id]);
+  }, [tokenId, nft, listing]);
 
   if (!nft) {
     return <LoadingNFTComponent />;
@@ -127,12 +127,8 @@ export default function NFTComponent({
                   cursor: "pointer",
                 }}
               >
-                {
-                  listing?.currencyValuePerToken
-                    .displayValue
-                }
-                {listing?.currencyValuePerToken
-                  .tokenAddress ===
+                {listing?.currencyValuePerToken.displayValue}
+                {listing?.currencyValuePerToken.tokenAddress ===
                 "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE"
                   ? "AVAX"
                   : listing?.currencyValuePerToken.symbol}
