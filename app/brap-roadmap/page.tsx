@@ -35,33 +35,19 @@ const roadmapData = [
 
 const Roadmap = () => {
   return (
-    <div style={{ backgroundColor: "#fff", color: "#111", width: "100%", padding: "2rem 0" }}>
-      <div style={{ maxWidth: "950px", margin: "0 auto", padding: "0 1rem" }}>
-        <h2
-          style={{
-            textAlign: "center",
-            fontSize: "2.25rem",
-            fontWeight: "bold",
-            color: "#FFA500",
-            marginBottom: "2rem",
-          }}
-        >
+    <div className="bg-white text-black w-full py-12">
+      <div className="max-w-4xl mx-auto px-4">
+        <h2 className="text-center text-4xl font-bold text-orange-500 mb-10">
           BRAP Ecosystem Roadmap
         </h2>
 
         {roadmapData.map((item, index) => (
           <div
             key={index}
-            style={{
-              marginBottom: "2rem",
-              paddingLeft: "1rem",
-              borderLeft: "4px solid #FFA500",
-            }}
+            className="mb-8 pl-4 border-l-4 border-orange-500"
           >
-            <h3 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>
-              {item.phase}
-            </h3>
-            <p style={{ fontSize: "1rem", lineHeight: "1.6" }}>{item.description}</p>
+            <h3 className="text-xl font-semibold mb-2">{item.phase}</h3>
+            <p className="text-base leading-relaxed">{item.description}</p>
           </div>
         ))}
       </div>

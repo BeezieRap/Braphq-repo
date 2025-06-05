@@ -1,31 +1,46 @@
-import { NFT as NFTType } from "thirdweb";
+import { NFT as NFTType } from "@thirdweb-dev/sdk";
 import React, { useState } from "react";
 
-import { useActiveAccount, useReadContract } from "thirdweb/react";
-import { ADDRESS_ZERO } from "thirdweb";
-import { isApprovedForAll } from "thirdweb/extensions/erc721";
-import { MARKETPLACE, NFT_COLLECTION } from "@/const/contracts";
+import { useAddress, useContract, useContractRead } from "@thirdweb-dev/react";
+import { ethers } from "ethers";
+// Removed unused import:
+// import { isApprovedForAll } from "@thirdweb-dev/sdk/dist/declarations/src/extensions/erc721";
 import AuctionListingButton from "./AuctionListingButton";
 import DirectListingButton from "./DirectListingButton";
 import cn from "classnames";
 import ApprovalButton from "./ApproveButton";
 
+const ADDRESS_ZERO = ethers.constants.AddressZero;
+
 type Props = {
-	nft: NFTType;
+  nft: NFTType;
 };
 
 const INPUT_STYLES =
-	"block w-full py-3 px-4 mb-4 bg-transparent border border-white text-base box-shadow-md rounded-lg mb-4";
+  "block w-full py-3 px-4 mb-4 bg-transparent border border-white text-base box-shadow-md rounded-lg mb-4";
 const LEGEND_STYLES = "mb-2 text-white/80";
+
 export default function SaleInfo({ nft }: Props) {
-  const account = useActiveAccount();
+  // useAddress replaces useActiveAccount
+  const address = useAddress();
+
+  const { contract: nftCollectionContract } = useContract(
+    "0xA3DaEd128c483e38984f8374916A441a22CD8aDd",
+    "nft-collection"
+  );
+  const { contract: marketplaceContract } = useContract(
+    "0x586d90eceDAf6627832f1B6081CAfc4Ea27fAf6A",
+    "marketplace"
+  );
+
   const [tab, setTab] = useState<"direct" | "auction">("direct");
 
-  const { data: hasApproval } = useReadContract(isApprovedForAll, {
-    contract: NFT_COLLECTION,
-    owner: account?.address || ADDRESS_ZERO,
-    operator: MARKETPLACE.address,
-  });
+  // only call useContractRead if contracts are ready
+  const { data: hasApproval } = useContractRead(
+    nftCollectionContract,
+    "isApprovedForAll",
+    [address || ADDRESS_ZERO, marketplaceContract?.getAddress() || ADDRESS_ZERO]
+  );
 
   const [directListingState, setDirectListingState] = useState({
     price: "0",
@@ -42,22 +57,20 @@ export default function SaleInfo({ nft }: Props) {
           <h3
             className={cn(
               "px-4 h-12 flex items-center justify-center text-base font-semibold cursor-pointer transition-all hover:text-white/80",
-              tab === "direct" &&
-								"text-[#0294fe] border-b-2 border-[#0294fe]"
+              tab === "direct" && "text-[#0294fe] border-b-2 border-[#0294fe]"
             )}
             onClick={() => setTab("direct")}
           >
-						Direct
+            Direct
           </h3>
           <h3
             className={cn(
               "px-4 h-12 flex items-center justify-center text-base font-semibold cursor-pointer transition-all hover:text-white/80",
-              tab === "auction" &&
-								"text-[#0294fe] border-b-2 border-[#0294fe]"
+              tab === "auction" && "text-[#0294fe] border-b-2 border-[#0294fe]"
             )}
             onClick={() => setTab("auction")}
           >
-						Auction
+            Auction
           </h3>
         </div>
 
@@ -68,10 +81,8 @@ export default function SaleInfo({ nft }: Props) {
             "flex-col"
           )}
         >
-          {/* Input field for buyout price */}
           <legend className={cn(LEGEND_STYLES)}>
-            {" "}
-						Price per token
+            Price per token
           </legend>
           <input
             className={cn(INPUT_STYLES)}
@@ -100,8 +111,7 @@ export default function SaleInfo({ nft }: Props) {
           )}
         >
           <legend className={cn(LEGEND_STYLES)}>
-            {" "}
-						Allow bids starting from{" "}
+            Allow bids starting from
           </legend>
           <input
             className={cn(INPUT_STYLES)}
@@ -117,8 +127,7 @@ export default function SaleInfo({ nft }: Props) {
           />
 
           <legend className={cn(LEGEND_STYLES)}>
-            {" "}
-						Buyout price{" "}
+            Buyout price
           </legend>
           <input
             className={cn(INPUT_STYLES)}
@@ -138,9 +147,7 @@ export default function SaleInfo({ nft }: Props) {
           ) : (
             <AuctionListingButton
               nft={nft}
-              minimumBidAmount={
-                auctionListingState.minimumBidAmount
-              }
+              minimumBidAmount={auctionListingState.minimumBidAmount}
               buyoutBidAmount={auctionListingState.buyoutPrice}
             />
           )}
