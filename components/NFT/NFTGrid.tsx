@@ -1,86 +1,94 @@
+"use client";
+
+import {
+  NFT_COLLECTION,
+  MARKETPLACE_ADDRESS,
+} from "@/const/contracts";
+
 import React from "react";
 import NFT, { LoadingNFTComponent } from "./NFT";
-import {
-  DirectListing,
-  EnglishAuction,
-} from "thirdweb/extensions/marketplace";
+// Removed: import { DirectListing, EnglishAuction } from "thirdweb";
 
 type NFTDataItem = {
   tokenId: bigint;
-  asset?: any; // Raw NFT metadata (from marketplace listing), which we'll pass as 'nft'
-  directListing?: DirectListing;
-  auctionListing?: EnglishAuction;
-  type?: string;
+  asset?: any;
+  directListing?: any; // Use 'any' for now, or type from hook response
+  auctionListing?: any;
+  type?: "direct-listing" | "english-auction";
 };
 
 type Props = {
   nftData: NFTDataItem[];
   overrideOnclickBehavior?: (nft: any) => void;
   emptyText?: string;
+  onPurchaseSuccess?: (
+    contractAddress: string,
+    tokenId: string,
+  ) => void;
 };
 
 function getPrice(
-  directListing?: DirectListing,
-  auctionListing?: EnglishAuction,
+  directListing?: any,
+  auctionListing?: any,
 ): string | null {
-  if (directListing && directListing.pricePerToken) {
-    return typeof directListing.pricePerToken === "string"
-      ? directListing.pricePerToken
-      : directListing.pricePerToken.toString();
+  if (directListing?.pricePerToken) {
+    return directListing.pricePerToken.toString();
   }
-  if (auctionListing) {
-    if (auctionListing.buyoutCurrencyValue?.displayValue) {
-      return auctionListing.buyoutCurrencyValue
-        .displayValue;
-    }
-    if (
-      auctionListing.minimumBidCurrencyValue?.displayValue
-    ) {
-      return auctionListing.minimumBidCurrencyValue
-        .displayValue;
-    }
+  if (
+    auctionListing?.buyoutCurrencyValuePerToken
+      ?.displayValue
+  ) {
+    return auctionListing.buyoutCurrencyValuePerToken
+      .displayValue;
+  }
+  if (auctionListing?.minimumBidAmount?.displayValue) {
+    return auctionListing.minimumBidAmount.displayValue;
   }
   return null;
 }
 
 function hasRequiredMetadata(
   asset?: any,
-  directListing?: DirectListing,
-  auctionListing?: EnglishAuction,
-  type?: string
+  directListing?: any,
+  auctionListing?: any,
+  type?: string,
 ): boolean {
   if (!asset) return false;
+  const { metadata } = asset;
   const hasImage =
-    typeof asset.metadata?.image === "string" &&
-    asset.metadata.image.length > 0;
+    typeof metadata?.image === "string" &&
+    metadata.image.length > 0;
   const hasName =
-    typeof asset.metadata?.name === "string" &&
-    asset.metadata.name.length > 0;
+    typeof metadata?.name === "string" &&
+    metadata.name.length > 0;
   const hasDescription =
-    typeof asset.metadata?.description === "string" &&
-    asset.metadata.description.length > 0;
-  const hasValidType = type === 'direct-listing' || type === 'english-auction';
+    typeof metadata?.description === "string" &&
+    metadata.description.length > 0;
+  const hasValidType =
+    type === "direct-listing" || type === "english-auction";
   const price = getPrice(directListing, auctionListing);
-  const hasPrice =
-    price !== null && price !== "" && price !== undefined;
-  return hasImage && hasName && hasDescription && (hasPrice || hasValidType);
+  const hasPrice = price !== null && price !== "";
+  return (
+    hasImage &&
+    hasName &&
+    hasDescription &&
+    (hasPrice || hasValidType)
+  );
 }
 
 export default function NFTGrid({
   nftData,
   overrideOnclickBehavior,
   emptyText = "No NFTs found for this collection.",
+  onPurchaseSuccess,
 }: Props) {
-  console.log("nftData", nftData);
-
-  const filteredData = nftData.filter(
-    (listing) =>
-      hasRequiredMetadata(
-        listing.asset,
-        listing.directListing,
-        listing.auctionListing,
-        listing.type
-      ),
+  const filteredData = nftData.filter((listing) =>
+    hasRequiredMetadata(
+      listing.asset,
+      listing.directListing,
+      listing.auctionListing,
+      listing.type,
+    ),
   );
 
   if (filteredData.length > 0) {
@@ -101,9 +109,9 @@ export default function NFTGrid({
                 nftObj.asset.metadata?.tokenId?.toString() ||
                 nftObj.tokenId.toString()
               }
-              listingType={nftObj.type || ''}
+              listingType={nftObj.type || ""}
               listing={nftObj}
-              nft={nftObj.asset} // <-- CORRECT: pass as 'nft'
+              nft={nftObj.asset}
               tokenId={nftObj.tokenId}
               overrideOnclickBehavior={
                 overrideOnclickBehavior
@@ -118,7 +126,6 @@ export default function NFTGrid({
   return <div>{emptyText}</div>;
 }
 
-// Loading skeleton grid
 export function NFTGridLoading() {
   return (
     <div

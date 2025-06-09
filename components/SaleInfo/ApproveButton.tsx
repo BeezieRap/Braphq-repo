@@ -4,18 +4,12 @@ import { NFT_COLLECTION, MARKETPLACE } from "@/const/contracts";
 import toastStyle from "@/util/toastConfig";
 
 export default function ApprovalButton() {
-  // Get the contract instance
   const { contract: nftContract } = useContract(NFT_COLLECTION);
 
-  // Prepare the write function for setApprovalForAll
   const {
     mutate: approveOperator,
     isLoading,
-    error,
-  } = useContractWrite(
-    nftContract,
-    "setApprovalForAll" // call the contract method directly
-  );
+  } = useContractWrite(nftContract, "setApprovalForAll");
 
   const handleApprove = () => {
     if (!nftContract) {
@@ -23,7 +17,6 @@ export default function ApprovalButton() {
       return;
     }
 
-    // Show loading toast before starting transaction
     toast.loading("Approving...", {
       id: "approve",
       style: toastStyle,
@@ -32,7 +25,7 @@ export default function ApprovalButton() {
 
     approveOperator(
       {
-        args: [MARKETPLACE, true], // operator address and approved flag
+        args: [MARKETPLACE, true],
       },
       {
         onSuccess: () => {
